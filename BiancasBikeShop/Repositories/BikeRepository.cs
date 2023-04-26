@@ -116,9 +116,32 @@ namespace BiancasBikeShop.Repositories
 
         public int GetBikesInShopCount()
         {
-            int count = 0;
-            // implement code here... 
-            return count;
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT wo.DateCompleted, Count(*) AS Count
+                        FROM Bike b
+                            LEFT JOIN WorkOrder wo ON wo.BikeId = b.Id
+                        WHERE wo.DateCompleted IS NULL
+                        GROUP BY wo.DateCompleted;
+                    ";
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        int count = 0;
+
+                        if (reader.Read())
+                        {
+                            count = DbUtils.GetInt(reader, "Count");
+                        }
+
+                        return count;
+                    }
+                }
+            }
         }
 
         public Bike MakeBike(SqlDataReader reader)
