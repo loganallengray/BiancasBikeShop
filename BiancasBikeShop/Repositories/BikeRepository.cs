@@ -122,11 +122,11 @@ namespace BiancasBikeShop.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                        SELECT wo.DateCompleted, Count(*) AS Count
+                        SELECT b.Id, wo.DateCompleted, Count(*) OVER () AS [Count]
                         FROM Bike b
                             LEFT JOIN WorkOrder wo ON wo.BikeId = b.Id
                         WHERE wo.DateCompleted IS NULL
-                        GROUP BY wo.DateCompleted;
+                        GROUP BY b.Id, wo.DateCompleted;
                     ";
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
